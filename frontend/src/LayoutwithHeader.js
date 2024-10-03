@@ -1,13 +1,11 @@
 import { Outlet } from "react-router-dom";
 import Header from "./components/Header"; 
 
-const LayoutWithHeader = () => {
+const LayoutWithHeader = ({ onLogout }) => { // Accept onLogout as a prop
   return (
     <>
-      <Header />
-     
-        <Outlet /> 
-     
+      <Header onLogout={onLogout} /> {/* Pass onLogout to the Header */}
+      <Outlet /> 
     </>
   );
 };

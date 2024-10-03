@@ -28,10 +28,10 @@ function App() {
       <Routes>
         <Route path="/" element={<AuthPage onLogin={handleLogin} />} />
 
-        <Route element={<LayoutWithHeader />}>
+        <Route element={<LayoutWithHeader onLogout={handleLogout} />}> {/* Passing onLogout here */}
           <Route
             path="/home"
-            element={isAuthenticated ? <HomePage onLogout={handleLogout} /> : <Navigate to="/" />}
+            element={isAuthenticated ? <HomePage /> : <Navigate to="/" />}
           />
           <Route
             path="/profile"
