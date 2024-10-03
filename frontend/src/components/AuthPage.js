@@ -13,36 +13,42 @@ const AuthPage = ({ onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Prepare the payload for login or registration
+    const payload = {
+      email,
+      password,
+      ...(isLogin ? {} : { username, phone }), // Include username and phone for registration
+    };
+
     try {
-      const payload = {
-        email,
-        password,
-        ...(isLogin ? {} : { username, phone }),
-      };
-  
       const url = isLogin
-        ? "http://localhost:5000/auth/login"
-        : "http://localhost:5000/auth/register";
-  
-      console.log("Sending request to:", url, "with payload:", payload);
-  
+        ? "http://localhost:5000/auth/login" // Login endpoint
+        : "http://localhost:5000/auth/register"; // Register endpoint
+
+      // Send the request to the backend
       const response = await axios.post(url, payload);
-      console.log("Response from server:", response.data);
-  
+      
+      // Check if the response is successful
       if (response.status === 200 || response.status === 201) {
         const { token, userID } = response.data;
+        
+        // Store the token and userID in localStorage
         localStorage.setItem("authToken", token);
         localStorage.setItem("userID", userID);
-  
+        
+        // Trigger the onLogin callback
         onLogin();
+
+        // Navigate to the home page
         navigate("/home");
       }
     } catch (error) {
+      // Log and display any error
       console.error("Error during authentication:", error.response?.data || error.message);
       alert("Authentication failed. Please check your details and try again.");
     }
   };
-  
 
   return (
     <div
@@ -97,7 +103,7 @@ const AuthPage = ({ onLogin }) => {
             type="submit"
             className="w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
           >
-            {isLogin ?"Login" : "Register"}
+            {isLogin ? "Login" : "Register"}
           </button>
         </form>
         <button

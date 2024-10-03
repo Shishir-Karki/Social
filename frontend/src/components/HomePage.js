@@ -25,10 +25,10 @@ const HomePage = () => {
       .then(response => {
         console.log('New post response:', response.data);
   
-        // Add the newly created post (with populated author) to the existing posts
+       
         const newPostWithAuthor = response.data.post;
-        setPosts([newPostWithAuthor, ...posts]);  // Add new post to the top of the list
-        setNewPost('');  // Clear the input field
+        setPosts([newPostWithAuthor, ...posts]);  
+        setNewPost('');  
       })
       .catch(error => console.error('Error posting:', error));
     }
