@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const fetchProfileData = async (token, setUserData, setLoading, setError) => {
   try {
-    const response = await fetch('http://localhost:5000/auth/profile', {
+    const response = await fetch('https://social-xndp.onrender.com/auth/profile', {
       method: 'GET',
       headers: {
         'Authorization': token,
@@ -25,7 +25,7 @@ const fetchProfileData = async (token, setUserData, setLoading, setError) => {
 
 const fetchUserPosts = async (token, setUserPosts) => {
   try {
-    const response = await axios.get('http://localhost:5000/posts/user-posts', {
+    const response = await axios.get('https://social-xndp.onrender.com/posts/user-posts', {
       headers: { authToken: token },
     });
     setUserPosts(response.data.posts); 
