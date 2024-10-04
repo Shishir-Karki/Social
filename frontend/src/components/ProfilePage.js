@@ -1,13 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
+const fetchProfileData = async (token, setUserData, setLoading, setError) => {
+  try {
+    const response = await fetch('https://social-xndp.onrender.com/auth/profile', {
+      method: 'GET',
+      headers: {
+        'Authorization': token,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch profile data');
+    }
+
+    const data = await response.json();
+    setUserData(data);
+  } catch (error) {
+    setError(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const fetchUserPosts = async (token, setUserPosts) => {
+  try {
+    const response = await axios.get('http://localhost:5000/posts/user-posts', {
+      headers: { authToken: token },
+    });
+    setUserPosts(response.data.posts); 
+  } catch (error) {
+    console.error('Error fetching user posts:', error);
+  }
+};
+
 const ProfilePage = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userPosts, setUserPosts] = useState([]); // Add state to store user posts
-
+  const [userPosts, setUserPosts] = useState([]); 
   const token = localStorage.getItem('authToken');
 
   const handleMouseEnter = () => {
@@ -18,43 +50,10 @@ const ProfilePage = () => {
     setIsHovered(false);
   };
 
-  const fetchProfileData = async () => {
-    try {
-      const response = await fetch('https://social-xndp.onrender.com/auth/profile', {
-        method: 'GET',
-        headers: {
-          'Authorization': token,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch profile data');
-      }
-
-      const data = await response.json();
-      setUserData(data);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchUserPosts = async () => {
-    try {
-      const response = await axios.get('https://social-xndp.onrender.com/posts/user-posts', {
-        headers: { authToken: token },
-      });
-      setUserPosts(response.data.posts); 
-    } catch (error) {
-      console.error('Error fetching user posts:', error);
-    }
-  };
-
   useEffect(() => {
-    fetchProfileData(); 
-    fetchUserPosts(); 
-  }, []);
+    fetchProfileData(token, setUserData, setLoading, setError); 
+    fetchUserPosts(token, setUserPosts); 
+  }, [token]);
 
   if (loading) return <div className="text-center mt-12 text-lg text-gray-500">Loading...</div>;
   if (error) return <div className="text-center mt-12 text-lg text-red-500">Error: {error}</div>;

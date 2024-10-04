@@ -8,7 +8,7 @@ const HomePage = () => {
 
   // Fetch posts from the backend
   useEffect(() => {
-    axios.get('http://localhost:5000/posts/getpost')
+    axios.get('https://social-xndp.onrender.com/posts/getpost')
       .then(response => setPosts(response.data.posts))
       .catch(error => console.error('Error fetching posts:', error));
   }, []);
@@ -17,7 +17,7 @@ const HomePage = () => {
     e.preventDefault();
   
     if (newPost.trim()) {
-      axios.post('http://localhost:5000/posts/createPost', { content: newPost }, {
+      axios.post('https://social-xndp.onrender.com/posts/createPost', { content: newPost }, {
         headers: {
           authToken: token, 
         }
