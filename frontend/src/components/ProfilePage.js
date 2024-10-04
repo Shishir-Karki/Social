@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const ProfilePage = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userPosts, setUserPosts] = useState([]); // Add state to store user posts
+
+  const token = localStorage.getItem('authToken');
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -15,10 +19,8 @@ const ProfilePage = () => {
   };
 
   const fetchProfileData = async () => {
-    const token = localStorage.getItem('authToken');
-
     try {
-      const response = await fetch('http://localhost:5000/auth/profile', {
+      const response = await fetch('https://social-xndp.onrender.com/auth/profile', {
         method: 'GET',
         headers: {
           'Authorization': token,
@@ -38,27 +40,35 @@ const ProfilePage = () => {
     }
   };
 
+  const fetchUserPosts = async () => {
+    try {
+      const response = await axios.get('https://social-xndp.onrender.com/posts/user-posts', {
+        headers: { authToken: token },
+      });
+      setUserPosts(response.data.posts); 
+    } catch (error) {
+      console.error('Error fetching user posts:', error);
+    }
+  };
+
   useEffect(() => {
-    fetchProfileData();
+    fetchProfileData(); 
+    fetchUserPosts(); 
   }, []);
 
   if (loading) return <div className="text-center mt-12 text-lg text-gray-500">Loading...</div>;
   if (error) return <div className="text-center mt-12 text-lg text-red-500">Error: {error}</div>;
 
   return (
-    <div className="profile-page min-h-screen bg-gray-900 flex justify-center ">
-      {/* Increased width and height of the profile box */}
+    <div className="profile-page min-h-screen bg-gray-900 flex flex-col items-center ">
       <div className="w-full max-w-4xl bg-gray-800 p-10 rounded-lg shadow-xl">
         <div className="relative text-center">
-          {/* Larger Cover Photo */}
           <div className="bg-gray-700 h-64 rounded-t-lg mb-[-5rem] relative overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-lg font-semibold">
-              {/* Add cover photo text */}
               Add a Cover Photo
             </div>
           </div>
 
-          {/* Larger Profile Image */}
           <div
             className="relative inline-block mt-[-6rem] w-40 h-40"
             onMouseEnter={handleMouseEnter}
@@ -76,18 +86,35 @@ const ProfilePage = () => {
             )}
           </div>
 
-          {/* User Info */}
           <div className="mt-6">
             <h2 className="text-4xl font-bold text-white">{userData.username}</h2>
-            <p className="text-gray-400">@{userData.username}</p> {/* Displaying username */}
+            <p className="text-gray-400">@{userData.username}</p>
           </div>
 
-          {/* Edit Profile Button */}
           <div className="mt-8">
             <button className="px-8 py-3 text-white border border-gray-500 rounded-full hover:bg-gray-700 transition-colors duration-200">
               Edit Profile
             </button>
           </div>
+        </div>
+      </div>
+
+    
+      <div className="w-full max-w-4xl bg-gray-800 p-6 rounded-lg shadow-md mt-10">
+        <h3 className="text-2xl font-bold text-white mb-4">Your Posts</h3>
+        <div className="space-y-6">
+          {userPosts.length > 0 ? (
+            userPosts.map(post => (
+              <div key={post._id} className="p-4 bg-gray-700 rounded-lg">
+                <div className="text-gray-400 mb-2">
+                  @{post.author.username} · {new Date(post.createdAt).toLocaleDateString()}
+                </div>
+                <p className="text-white">{post.content}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-400">You haven't posted anything yet.</p>
+          )}
         </div>
       </div>
     </div>

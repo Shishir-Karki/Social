@@ -14,17 +14,17 @@ const AuthPage = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Prepare the payload for login or registration
+
     const payload = {
       email,
       password,
-      ...(isLogin ? {} : { username, phone }), // Include username and phone for registration
+      ...(isLogin ? {} : { username, phone }), 
     };
 
     try {
       const url = isLogin
-        ? "http://localhost:5000/auth/login" // Login endpoint
-        : "http://localhost:5000/auth/register"; // Register endpoint
+        ? "https://social-xndp.onrender.com/auth/login" 
+        : "https://social-xndp.onrender.com/auth/register"; 
 
       // Send the request to the backend
       const response = await axios.post(url, payload);
