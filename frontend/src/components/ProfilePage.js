@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const fetchProfileData = async (token, setUserData, setLoading, setError) => {
   try {
-    const response = await fetch('https://social-xndp.onrender.com/auth/profile', {
+    const response = await fetch('http://localhost:5000/auth/profile', {
       method: 'GET',
       headers: {
         'Authorization': token,
@@ -25,7 +25,7 @@ const fetchProfileData = async (token, setUserData, setLoading, setError) => {
 
 const fetchUserPosts = async (token, setUserPosts) => {
   try {
-    const response = await axios.get('https://social-xndp.onrender.com/posts/user-posts', {
+    const response = await axios.get('http://localhost:5000/posts/user-posts', {
       headers: { authToken: token },
     });
     setUserPosts(response.data.posts); 
@@ -39,7 +39,9 @@ const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userPosts, setUserPosts] = useState([]); 
+  const [userPosts, setUserPosts] = useState([]);
+  const [editingPostId, setEditingPostId] = useState(null); // Track which post is being edited
+  const [editedContent, setEditedContent] = useState('');  // Content for editing
   const token = localStorage.getItem('authToken');
 
   const handleMouseEnter = () => {
@@ -54,6 +56,32 @@ const ProfilePage = () => {
     fetchProfileData(token, setUserData, setLoading, setError); 
     fetchUserPosts(token, setUserPosts); 
   }, [token]);
+
+  const handleDelete = (postId) => {
+    axios.delete(`https://social-xndp.onrender.com/posts/delete-post/${postId}`, {
+      headers: { authToken: token }
+    })
+      .then(response => {
+        setUserPosts(userPosts.filter(post => post._id !== postId)); // Remove deleted post from UI
+      })
+      .catch(error => console.error('Error deleting post:', error));
+  };
+
+  const handleEditClick = (post) => {
+    setEditingPostId(post._id);
+    setEditedContent(post.content);
+  };
+
+  const handleUpdateSubmit = (postId) => {
+    axios.put(`https://social-xndp.onrender.com/posts/update-post/${postId}`, { content: editedContent }, {
+      headers: { authToken: token }
+    })
+      .then(response => {
+        setUserPosts(userPosts.map(post => (post._id === postId ? response.data.post : post)));
+        setEditingPostId(null); // Exit editing mode
+      })
+      .catch(error => console.error('Error updating post:', error));
+  };
 
   if (loading) return <div className="text-center mt-12 text-lg text-gray-500">Loading...</div>;
   if (error) return <div className="text-center mt-12 text-lg text-red-500">Error: {error}</div>;
@@ -108,7 +136,32 @@ const ProfilePage = () => {
                 <div className="text-gray-400 mb-2">
                   @{post.author.username} · {new Date(post.createdAt).toLocaleDateString()}
                 </div>
-                <p className="text-white">{post.content}</p>
+                {editingPostId === post._id ? (
+                  <div>
+                    <textarea
+                      value={editedContent}
+                      onChange={(e) => setEditedContent(e.target.value)}
+                      className="w-full h-24 p-3 bg-gray-600 text-white rounded-md mb-2"
+                    />
+                    <button onClick={() => handleUpdateSubmit(post._id)} className="mr-2 bg-blue-200 hover:bg-blue-700 text-black py-1 px-3 rounded-md">
+                      Save
+                    </button>
+                    <button onClick={() => setEditingPostId(null)} className="bg-red-200 hover:bg-red-700 text-black py-1 px-3 rounded-md">
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-white">{post.content}</p>
+                )}
+
+                <div className="flex mt-2">
+                  <button onClick={() => handleEditClick(post)} className="mr-4 bg-green-200 hover:bg-yellow-700 text-black py-1 px-3 rounded-md">
+                    Edit
+                  </button>
+                  <button onClick={() => handleDelete(post._id)} className="bg-red-200 hover:bg-red-700 text-black py-1 px-3 rounded-md">
+                    Delete
+                  </button>
+                </div>
               </div>
             ))
           ) : (

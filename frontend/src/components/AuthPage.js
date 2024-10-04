@@ -14,11 +14,11 @@ const AuthPage = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-
+    // Prepare the payload for login or registration
     const payload = {
       email,
       password,
-      ...(isLogin ? {} : { username, phone }), 
+      ...(isLogin ? {} : { username, phone }), // Include username and phone for registration
     };
 
     try {
@@ -26,25 +26,22 @@ const AuthPage = ({ onLogin }) => {
         ? "https://social-xndp.onrender.com/auth/login" 
         : "https://social-xndp.onrender.com/auth/register"; 
 
-      // Send the request to the backend
+      
       const response = await axios.post(url, payload);
       
-      // Check if the response is successful
       if (response.status === 200 || response.status === 201) {
         const { token, userID } = response.data;
         
-        // Store the token and userID in localStorage
         localStorage.setItem("authToken", token);
         localStorage.setItem("userID", userID);
         
-        // Trigger the onLogin callback
+     
         onLogin();
 
-        // Navigate to the home page
+        
         navigate("/home");
       }
     } catch (error) {
-      // Log and display any error
       console.error("Error during authentication:", error.response?.data || error.message);
       alert("Authentication failed. Please check your details and try again.");
     }
