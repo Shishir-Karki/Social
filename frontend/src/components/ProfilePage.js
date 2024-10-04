@@ -25,7 +25,7 @@ const fetchProfileData = async (token, setUserData, setLoading, setError) => {
 
 const fetchUserPosts = async (token, setUserPosts) => {
   try {
-    const response = await axios.get('http://localhost:5000/posts/user-posts', {
+    const response = await axios.get('https://social-xndp.onrender.com/posts/user-posts', {
       headers: { authToken: token },
     });
     setUserPosts(response.data.posts); 

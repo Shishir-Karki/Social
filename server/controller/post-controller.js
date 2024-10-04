@@ -44,4 +44,18 @@ exports.getPosts = async (req, res) => {
       res.status(500).json({ error: "Server error" });
     }
   };
+
+
+ 
+exports.getUserPosts = async (req, res) => {
+  try {
+    const userId = req.user.userID; 
+
+    const posts = await Post.find({ author: userId }).populate('author', 'username');
+    res.status(200).json({ posts });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
   
